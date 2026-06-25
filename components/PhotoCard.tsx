@@ -1,10 +1,12 @@
-import Image from "next/image";
+"use client";
+
+import { CldImage } from "next-cloudinary";
 import { Photo } from "@/types";
 
 export default function PhotoCard({ photo }: { photo: Photo }) {
   return (
     <article className="relative overflow-hidden bg-zinc-900 aspect-[3/2] group">
-      <Image
+      <CldImage
         src={photo.src}
         alt={photo.alt}
         fill

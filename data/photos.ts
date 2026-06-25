@@ -4,7 +4,7 @@ export const photos: Photo[] = [
   {
     id: "alps-dolomites-2022-001",
     title: "Tre Cime at Golden Hour",
-    src: "https://picsum.photos/800/600?random=1",
+    src: "https://res.cloudinary.com/ds1ukbkgz/image/upload/v1782401623/IMG_2981_wfg9sj.jpg",
     alt: "The three peaks of Tre Cime di Lavaredo glowing orange at sunset",
     trip: "alps-dolomites-2022",
     tripLabel: "Alps & Dolomites 2022",
@@ -16,7 +16,7 @@ export const photos: Photo[] = [
   {
     id: "alps-dolomites-2022-002",
     title: "Swiss Alps Morning Mist",
-    src: "https://picsum.photos/800/600?random=2",
+    src: "https://res.cloudinary.com/ds1ukbkgz/image/upload/v1782401623/IMG_2978_tbzzvd.jpg",
     alt: "A valley in the Swiss Alps filled with morning mist beneath jagged peaks",
     trip: "alps-dolomites-2022",
     tripLabel: "Alps & Dolomites 2022",
@@ -28,7 +28,7 @@ export const photos: Photo[] = [
   {
     id: "scotland-iceland-2023-001",
     title: "Glencoe in the Rain",
-    src: "https://picsum.photos/800/600?random=3",
+    src: "https://res.cloudinary.com/ds1ukbkgz/image/upload/v1782401622/IMG_2966_puqn9j.jpg",
     alt: "Dark storm clouds rolling over the dramatic peaks of Glencoe valley",
     trip: "scotland-iceland-2023",
     tripLabel: "Scotland & Iceland 2023",
@@ -40,7 +40,7 @@ export const photos: Photo[] = [
   {
     id: "scotland-iceland-2023-002",
     title: "Aurora Over Kirkjufell",
-    src: "https://picsum.photos/800/600?random=4",
+    src: "https://res.cloudinary.com/ds1ukbkgz/image/upload/v1782401612/IMG_2961_iyxda5.jpg",
     alt: "Green and purple northern lights above Kirkjufell mountain reflected in a still lake",
     trip: "scotland-iceland-2023",
     tripLabel: "Scotland & Iceland 2023",
@@ -52,7 +52,7 @@ export const photos: Photo[] = [
   {
     id: "southeast-asia-2022-001",
     title: "Ha Long Bay at Dawn",
-    src: "https://picsum.photos/800/600?random=5",
+    src: "https://res.cloudinary.com/ds1ukbkgz/image/upload/v1782401611/IMG_2921_mstful.jpg",
     alt: "Limestone karsts emerging from still water at sunrise in Ha Long Bay, Vietnam",
     trip: "southeast-asia-2022",
     tripLabel: "Southeast Asia 2022",
@@ -64,7 +64,7 @@ export const photos: Photo[] = [
   {
     id: "nepal-2024-001",
     title: "Annapurna South from Poon Hill",
-    src: "https://picsum.photos/800/600?random=6",
+    src: "https://res.cloudinary.com/ds1ukbkgz/image/upload/v1782401610/IMG_2919_w9jtag.jpg",
     alt: "Annapurna South and Machapuchare rising above clouds at sunrise as seen from Poon Hill",
     trip: "nepal-2024",
     tripLabel: "Nepal 2024",
@@ -76,7 +76,7 @@ export const photos: Photo[] = [
   {
     id: "nepal-2024-002",
     title: "Khumbu Glacier Moraine",
-    src: "https://picsum.photos/800/600?random=7",
+    src: "https://res.cloudinary.com/ds1ukbkgz/image/upload/v1782401610/IMG_2918_k0d9tn.jpg",
     alt: "Rocky moraine of the Khumbu Glacier with Everest visible in the distance",
     trip: "nepal-2024",
     tripLabel: "Nepal 2024",
@@ -88,7 +88,7 @@ export const photos: Photo[] = [
   {
     id: "japan-2023-001",
     title: "Mt. Fuji Through Cherry Blossoms",
-    src: "https://picsum.photos/800/600?random=8",
+    src: "https://res.cloudinary.com/ds1ukbkgz/image/upload/v1782401595/IMG_2866_up595b.jpg",
     alt: "Mount Fuji framed by blooming cherry blossom branches at dusk",
     trip: "japan-2023",
     tripLabel: "Japan 2023",
