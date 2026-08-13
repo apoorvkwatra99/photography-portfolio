@@ -1,10 +1,10 @@
-@AGENTS.md
-
 # Photography Portfolio — Project Memory
 
 ## What This Is
 
-A personal photography portfolio website featuring nature and travel photos from the past several years. Photos are browsable by trip, place, and time period. The site will evolve to include AI-powered features: auto-generated captions and natural language search via embeddings.
+A personal photography portfolio website featuring nature and travel photos from the past several years. Photos are browsable by trip, place, and time period. The site includes AI-powered features: AI-assisted tagging (human-reviewed) and natural language search via image embeddings, plus similar-photo recommendations.
+
+Captions are written by hand, not AI-generated — they're personal/curatorial text and not something to automate.
 
 This is a real project, not a tutorial. Build for clarity and maintainability, not speed.
 
@@ -18,7 +18,7 @@ This is a real project, not a tutorial. Build for clarity and maintainability, n
 | Styling | Tailwind CSS |
 | Image hosting | Cloudinary |
 | AI features | Anthropic API (claude-sonnet-4-6) |
-| Embeddings / search | Voyage AI (voyage-3) |
+| Embeddings / search | Voyage AI (voyage-multimodal-3) |
 | Deployment | Vercel |
 | Language | TypeScript throughout |
 
@@ -33,21 +33,22 @@ photography-portfolio/
 │   ├── trips/
 │   │   └── [slug]/page.tsx # Individual trip view
 │   └── search/
-│       └── page.tsx        # Natural language search page (Phase 3)
+│       └── page.tsx        # Natural language search page (Phase 4)
 ├── components/             # Reusable UI components
 │   ├── PhotoCard.tsx
 │   ├── PhotoGrid.tsx
 │   ├── FilterBar.tsx
-│   └── SearchBar.tsx       # (Phase 3)
+│   ├── SearchBar.tsx       # (Phase 4)
+│   └── SimilarPhotos.tsx   # (Phase 4)
 ├── data/
 │   └── photos.ts           # Source of truth for photo metadata (Phase 1-2)
 ├── lib/
 │   ├── cloudinary.ts       # Cloudinary helpers
-│   ├── anthropic.ts        # Anthropic API client
-│   └── embeddings.ts       # Embedding + search logic (Phase 3)
+│   ├── anthropic.ts        # Anthropic API client (tagging)
+│   └── embeddings.ts       # Voyage embedding + search logic (Phase 4)
 ├── public/                 # Static assets, placeholder images
 ├── scripts/                # One-off data processing scripts (Phase 3+)
-│   ├── generate-captions.ts
+│   ├── generate-tags.ts
 │   └── generate-embeddings.ts
 ├── types/
 │   └── index.ts            # Shared TypeScript types
@@ -64,18 +65,22 @@ Photos use a **flat metadata approach** — every photo is an object in a single
 
 ```typescript
 export type Photo = {
-  id: string;                  // unique slug, e.g. "patagonia-2023-001"
-  title: string;               // human-readable title
-  src: string;                 // Cloudinary URL (or /public path during dev)
-  alt: string;                 // accessibility description
-  trip: string;                // trip name slug, e.g. "patagonia-2023"
-  tripLabel: string;           // human label, e.g. "Patagonia 2023"
-  place: string;               // place slug, e.g. "torres-del-paine"
-  placeLabel: string;          // human label, e.g. "Torres del Paine"
-  dateTaken: string;           // ISO 8601, e.g. "2023-11-14"
-  tags: string[];              // descriptive tags, e.g. ["mountains", "snow", "sunrise"]
-  caption?: string;            // AI-generated or manually written (optional)
-  embedding?: number[];        // vector embedding for search (Phase 3, omit until needed)
+  id: string;                  // unique slug, e.g. "berlin-2023-001"
+  title: string;                // human-readable title
+  src: string;                  // Cloudinary URL (or /public path during dev)
+  alt: string;                  // accessibility description
+  country: string;              // country slug, e.g. "germany" — primary grouping for "All Photos" tab
+  countryLabel: string;         // human label, e.g. "Germany"
+  place: string;                // place slug, e.g. "berlin" — granular location within country
+  placeLabel: string;           // human label, e.g. "Berlin"
+  trip: string;                 // trip/visit slug, e.g. "berlin-2023" — used for sub-grouping and filters, not primary nav
+  tripLabel: string;            // human label, e.g. "Berlin, Spring 2023"
+  dateTaken: string;            // ISO 8601, e.g. "2023-11-14"
+  tags: string[];               // AI-suggested, human-reviewed tags, e.g. ["mountains", "snow", "sunrise"]
+  caption?: string;             // hand-written by me, optional, never AI-generated
+  featured?: boolean;           // manually curated — true shows on homepage favorites grid
+  embedding?: number[];         // image embedding for search (Phase 4, omit until needed)
+  needsReembedding?: boolean;   // set true if photo is re-edited after embedding; rerun script for this id
 };
 ```
 
@@ -88,16 +93,19 @@ import { Photo } from "@/types";
 
 export const photos: Photo[] = [
   {
-    id: "patagonia-2023-001",
-    title: "Towers at Dawn",
+    id: "berlin-2023-001",
+    title: "Spree at Dusk",
     src: "/placeholder.jpg",
-    alt: "The three towers of Torres del Paine at sunrise with pink sky",
-    trip: "patagonia-2023",
-    tripLabel: "Patagonia 2023",
-    place: "torres-del-paine",
-    placeLabel: "Torres del Paine",
-    dateTaken: "2023-11-14",
-    tags: ["mountains", "sunrise", "patagonia"],
+    alt: "The Spree river in Berlin at dusk with city lights reflecting on the water",
+    country: "germany",
+    countryLabel: "Germany",
+    place: "berlin",
+    placeLabel: "Berlin",
+    trip: "berlin-2023",
+    tripLabel: "Berlin, Spring 2023",
+    dateTaken: "2023-04-14",
+    tags: ["city", "river", "dusk", "germany"],
+    featured: true,
   },
   // ... more photos
 ];
@@ -109,38 +117,59 @@ export const photos: Photo[] = [
 
 Work through these phases in order. Do not skip ahead or combine phases.
 
-### Phase 1 — Static site with mock data
+### Phase 1 — Static site with mock data ✅ complete
 - Homepage: responsive photo grid
 - Filter bar: filter by trip, place, and date range (client-side, no API calls)
 - Individual trip page: `/trips/[slug]`
 - Data source: hardcoded `data/photos.ts`
 - No Cloudinary, no AI, no search yet
-- Goal: a working, browsable site with real layout decisions made
 
-### Phase 2 — Cloudinary integration
+### Phase 2 — Cloudinary integration ✅ complete
 - Replace `/public` image paths with real Cloudinary URLs
 - Use `next/image` with Cloudinary loader for optimized delivery
 - Upload a real batch of photos, update `data/photos.ts` with real URLs
-- Goal: real photos loading fast
 
-### Phase 3 — AI captions
-- Add a script (`scripts/generate-captions.ts`) that:
+### Photo curation (between Phase 2 and Phase 3 — manual, not code)
+- Select and edit the final ~80 photos before starting Phase 3
+- Upload final edited versions to Cloudinary — Phase 3 and 4 both operate on actual image content, so this must happen before either script runs
+- If a photo is re-edited after Phase 3/4 have already run on it, set `needsReembedding: true` and rerun both scripts for that photo's id only — re-running is cheap (seconds, near-zero cost), but redoing all 80 unnecessarily is wasted effort
+
+### Phase 3 — AI-assisted tagging
+- Add a script (`scripts/generate-tags.ts`) that:
   - Reads `data/photos.ts`
-  - For each photo without a caption, calls Anthropic API with the image URL
-  - Writes the caption back to the data file
-- Captions are stored in `data/photos.ts` as the `caption` field
-- Display captions on photo cards and trip pages
-- Goal: every photo has a human-readable AI caption
+  - For each photo, calls the Anthropic API with the image and a controlled tag vocabulary, asking for suggested tags
+  - Writes suggested tags back to the data file for manual review (do not auto-accept — I review and edit every photo's tags before committing)
+- Tags are stored in `data/photos.ts` as the `tags` field
+- Captions are NOT generated by this script — I write captions by hand, separately, at my own pace
+- Goal: every photo has accurate, consistent tags that support both the filter bar and Phase 4 search/recs
 
-### Phase 4 — Natural language search
+### Phase 4 — Image embeddings: search + similar-photo recommendations
 - Add a script (`scripts/generate-embeddings.ts`) that:
-  - For each photo, creates a text blob from title + place + tags + caption
-  - Calls Voyage AI API (voyage-3) to generate a vector embedding
-  - Stores the vector as the `embedding` field in `data/photos.ts`
-- Search page (`/search`): user types a natural language query, query is embedded via Voyage AI, cosine similarity is computed against all photo embeddings, top results are returned
+  - For each photo, fetches the actual image (from Cloudinary) and sends it to Voyage AI's multimodal embedding model (voyage-multimodal-3)
+  - Stores the resulting vector as the `embedding` field in `data/photos.ts`
+  - Embeddings are generated from image content directly — not from text metadata
+- Search page (`/search`): user types a natural language query, query is embedded via Voyage AI (text input, same multimodal model/vector space), cosine similarity is computed against all photo image embeddings, top results are returned
+- Similar-photo recommendations: reuse the same photo embeddings for photo-to-photo cosine similarity ("more like this" on photo cards / trip pages) — build this after search is working, since it's the same underlying vectors
 - Start with in-memory similarity — no external vector database needed at this scale
 - If the photo collection grows large (500+), consider migrating to Supabase pgvector, but do not add this complexity upfront
-- Goal: "show me snowy mountains at sunrise" returns the right photos
+
+### UI polish — after Phase 3 and 4 are functionally complete
+- Refine layout, typography, spacing, transitions to match the intended gallery-focused feel
+- Do this only once tagging, search, and recs are working end-to-end — don't polish UI around features that don't exist yet
+
+### Stretch goal — print sales (not scoped yet, target window: ~Nov, ahead of holiday calendar sales)
+- Out of scope for the current build. Revisit only after core phases and UI polish are done.
+- Will require real e-commerce scope: product/size selection, payment integration (e.g. Stripe), and fulfillment (e.g. Printful/Prodigi API or manual handling) — not a simple page addition
+- Main planned product: an annual travel calendar using photos from the past 12 months — treat as a separate, later planning effort, not part of this CLAUDE.md's phases
+
+---
+
+## Navigation & Site Structure
+
+- **Homepage**: curated favorites grid only — photos manually marked `featured: true`. Not auto-selected; this is a curatorial decision made by hand, same as captions.
+- **All Photos tab** (`/photos` or similar): organized primarily by `country`, with `place` as a sub-level within each country. A visitor browsing "Hungary" sees all Hungary photos regardless of which trip/year they're from.
+- **Trip/date** stays available as metadata and filter-bar input (e.g. "Berlin, Spring 2023" vs "Berlin, Fall 2024") but is not the primary navigation axis — multiple visits to the same place should collapse under that place, not fragment the browsing experience by trip.
+- Individual trip pages (`/trips/[slug]`) from Phase 1 can remain as a secondary/filtered view if useful, but country/place browsing is the primary path.
 
 ---
 
@@ -165,11 +194,12 @@ Work through these phases in order. Do not skip ahead or combine phases.
 
 ### API calls
 - All Anthropic API calls go through `lib/anthropic.ts` — never call the API directly from a component
+- All Voyage API calls go through `lib/embeddings.ts` — never call the API directly from a component
 - Never expose API keys client-side; all AI calls happen server-side or in scripts
 
 ### Git
 - Commit after each phase milestone before starting the next
-- Descriptive commit messages: "Add Phase 1 static grid and filter bar"
+- Descriptive commit messages: "Add Phase 3 AI-assisted tagging script"
 
 ---
 
@@ -187,19 +217,53 @@ These live in `.env.local` and are never committed to git. A `.env.example` with
 
 ---
 
-## My Trips (reference for mock data)
+## My Trips (reference for tagging and mock data)
 
-Use these when generating placeholder photo data. All trips are nature-focused.
+Use `country` as the primary grouping (for the All Photos tab) and `place` for granular locations within a country. `trip` captures a specific visit/date range — the same country can have multiple trips across different years.
 
-| Trip | Region | Example places |
-|---|---|---|
-| Europe — Alps / Dolomites | Europe | Dolomites (Italy), Swiss Alps |
-| Europe — Scotland / Iceland | Europe | Scottish Highlands, Iceland landscapes |
-| Southeast Asia | SE Asia | Vietnam, Thailand, possibly Borneo |
-| Nepal | South Asia | Himalayas, Annapurna region, Everest base camp area |
-| Japan | East Asia | Japanese Alps, forests, Mt. Fuji area |
+| Country | Notes |
+|---|---|
+| Germany | Lived in Berlin for 2.5 years — many photos are everyday Berlin life, not just trips. See camera-era note below. |
+| Switzerland | |
+| Czech Republic | |
+| Austria | |
+| Slovakia | |
+| Hungary | |
+| Portugal | |
+| Netherlands | |
+| Belgium | |
+| Italy | |
+| Norway | |
+| Estonia | |
+| Finland | |
+| Latvia | |
+| Poland | |
+| USA | |
+| Georgia | |
+| Spain | |
+| France | |
+| Scotland | |
+| England | |
+| Slovenia | Part of Balkans travel — tag with its own country, not a generic "Balkans" bucket |
+| Croatia | Part of Balkans travel |
+| Bosnia and Herzegovina | Part of Balkans travel |
+| Montenegro | Part of Balkans travel |
+| Albania | Part of Balkans travel |
+| India | |
+| Thailand | |
+| Laos | |
+| Cambodia | |
+| Vietnam | |
+| Japan | |
+| Nepal | |
 
-When generating mock photos, draw names, places, and tags from this list rather than inventing generic locations. Approximate dates are fine — assign plausible years and seasons per region.
+### Camera era note (Germany period specifically)
+During the Berlin years, the camera used shifted over time — relevant for editing effort and possibly worth a `camera` field later if useful for filtering or display:
+- Earliest photos: iPhone
+- Middle period: Canon EOS 5D (not all shot in RAW)
+- Most recent: Ricoh GR III, shot manually (not all shot in RAW either)
+
+RAW photos have the most edit headroom, but JPEG/iPhone photos are still meaningfully editable (crop, color grade, contrast/exposure within limits) — don't exclude non-RAW shots from curation by default, just expect lower edit ceiling and faster per-photo edit time on those.
 
 ---
 
@@ -209,6 +273,9 @@ When generating mock photos, draw names, places, and tags from this list rather 
 - Do not install a UI component library (shadcn, MUI, Chakra) — use Tailwind
 - Do not use a vector database for Phase 4 — start with in-memory similarity; only introduce Supabase pgvector if explicitly asked
 - Do not add `embedding` fields to `data/photos.ts` until Phase 4 begins
+- Do not auto-generate captions — captions are written by hand
+- Do not auto-accept AI-suggested tags without review
 - Do not make API calls from client components
 - Do not create deeply nested component hierarchies for simple layouts
 - Do not add authentication — this is a public portfolio
+- Do not build print sales / e-commerce features until explicitly scoped later

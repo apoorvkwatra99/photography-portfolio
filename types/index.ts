@@ -8,7 +8,6 @@ export type Photo = {
   place: string;
   placeLabel: string;
   dateTaken: string;
-  tags: string[];
   caption?: string;
   embedding?: number[];
 };
