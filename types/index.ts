@@ -10,4 +10,6 @@ export type Photo = {
   dateTaken: string;
   caption?: string;
   embedding?: number[];
+  country: string;
+  countryLabel: string;
 };
