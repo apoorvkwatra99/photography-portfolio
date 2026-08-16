@@ -1,6 +1,7 @@
 "use client";
 
 import { MouseEvent } from "react";
+import Image from "next/image";
 import { Photo } from "@/types";
 import { formatDate } from "@/lib/formatDate";
 
@@ -24,11 +25,15 @@ export default function Lightbox({
         className="relative max-h-full max-w-full"
         onClick={stopPropagation}
       >
-        <img
-          src={photo.src}
-          alt={photo.alt}
-          className="max-h-[90vh] max-w-[90vw] object-contain"
-        />
+        <div className="relative h-[90vh] w-[90vw] max-h-[90vh] max-w-[90vw]">
+          <Image
+            src={photo.src}
+            alt={photo.alt}
+            fill
+            sizes="90vw"
+            className="object-contain"
+          />
+        </div>
         <div className="flex items-end justify-between gap-4 p-4">
           <p className="text-white/60 text-xs mt-0.5 text-left">
             {photo.placeLabel}, {photo.countryLabel}

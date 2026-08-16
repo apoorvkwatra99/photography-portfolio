@@ -1,8 +1,12 @@
 "use client";
 
 import { SyntheticEvent, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { Photo } from "@/types";
 import { formatDate } from "@/lib/formatDate";
+
+const GRID_SIZES =
+  "(min-width: 1024px) calc((100vw - 64px) / 3), (min-width: 768px) calc((100vw - 48px) / 2), calc(100vw - 32px)";
 
 const CONTAINER_ASPECT = 4 / 3;
 
@@ -39,12 +43,14 @@ export default function PhotoCard({
       onClick={onClick}
       className="relative overflow-hidden bg-black aspect-[4/3] group cursor-pointer"
     >
-      <img
+      <Image
         ref={imgRef}
         src={photo.src}
         alt={photo.alt}
         onLoad={handleLoad}
-        className="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+        fill
+        sizes={GRID_SIZES}
+        className="object-contain transition-transform duration-500 group-hover:scale-105"
       />
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300" />
       <div
