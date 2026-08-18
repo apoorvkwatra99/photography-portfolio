@@ -13,6 +13,8 @@ import { Photo } from "@/types";
 import { formatDate } from "@/lib/formatDate";
 
 const SWIPE_THRESHOLD = 50;
+const DRAG_THRESHOLD = 5;
+const SWIPE_TRANSITION_MS = 220;
 const VIEWPORT_FRACTION = 0.9;
 
 type Size = { width: number; height: number };
@@ -43,146 +45,214 @@ export default function Lightbox({
   onNext: () => void;
 }) {
   const dragStartX = useRef<number | null>(null);
+  const didDrag = useRef(false);
   const naturalSizes = useRef<Map<string, Size>>(new Map());
-  const [renderSize, setRenderSize] = useState<Size | null>(null);
+  const [fittedSizes, setFittedSizes] = useState<Record<string, Size>>({});
+  const [viewportWidth, setViewportWidth] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth : 0
+  );
+  const [dragX, setDragX] = useState(0);
+  const [transitionEnabled, setTransitionEnabled] = useState(false);
+
+  function recomputeFittedSizes() {
+    const ids = [prevPhoto?.id, photo.id, nextPhoto?.id].filter(
+      (id): id is string => Boolean(id)
+    );
+    setFittedSizes((prev) => {
+      const next = { ...prev };
+      for (const id of ids) {
+        const natural = naturalSizes.current.get(id);
+        if (natural) next[id] = fitWithinViewport(natural);
+      }
+      return next;
+    });
+  }
 
   useEffect(() => {
-    const cached = naturalSizes.current.get(photo.id);
-    if (cached) {
-      setRenderSize(fitWithinViewport(cached));
-    }
-  }, [photo.id]);
+    recomputeFittedSizes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [photo.id, prevPhoto?.id, nextPhoto?.id]);
 
   useEffect(() => {
     function handleResize() {
-      const cached = naturalSizes.current.get(photo.id);
-      if (cached) {
-        setRenderSize(fitWithinViewport(cached));
-      }
+      setViewportWidth(window.innerWidth);
+      recomputeFittedSizes();
     }
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [photo.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [photo.id, prevPhoto?.id, nextPhoto?.id]);
 
   function handleImageLoad(
     photoId: string,
     event: SyntheticEvent<HTMLImageElement>
   ) {
     const { naturalWidth, naturalHeight } = event.currentTarget;
-    const size = { width: naturalWidth, height: naturalHeight };
-    naturalSizes.current.set(photoId, size);
-    if (photoId === photo.id) {
-      setRenderSize(fitWithinViewport(size));
-    }
+    naturalSizes.current.set(photoId, {
+      width: naturalWidth,
+      height: naturalHeight,
+    });
+    recomputeFittedSizes();
   }
 
   function stopPropagation(event: MouseEvent) {
     event.stopPropagation();
   }
 
-  function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
-    dragStartX.current = event.clientX;
+  function animateSwipeAway(direction: "prev" | "next") {
+    setTransitionEnabled(true);
+    setDragX(direction === "prev" ? viewportWidth : -viewportWidth);
+    window.setTimeout(() => {
+      setTransitionEnabled(false);
+      setDragX(0);
+      if (direction === "prev") {
+        onPrev();
+      } else {
+        onNext();
+      }
+    }, SWIPE_TRANSITION_MS);
   }
 
-  function handlePointerUp(event: PointerEvent<HTMLDivElement>) {
+  function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
+    dragStartX.current = event.clientX;
+    didDrag.current = false;
+    setTransitionEnabled(false);
+  }
+
+  function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
     if (dragStartX.current === null) return;
-    const deltaX = event.clientX - dragStartX.current;
+    const delta = event.clientX - dragStartX.current;
+    if (Math.abs(delta) > DRAG_THRESHOLD) {
+      didDrag.current = true;
+    }
+    setDragX(delta);
+  }
+
+  function handlePointerUp() {
+    if (dragStartX.current === null) return;
     dragStartX.current = null;
-    if (deltaX > SWIPE_THRESHOLD) {
-      onPrev();
-    } else if (deltaX < -SWIPE_THRESHOLD) {
-      onNext();
+    setTransitionEnabled(true);
+    if (dragX > SWIPE_THRESHOLD && prevPhoto) {
+      animateSwipeAway("prev");
+    } else if (dragX < -SWIPE_THRESHOLD && nextPhoto) {
+      animateSwipeAway("next");
+    } else {
+      setDragX(0);
     }
   }
 
   function handlePointerCancel() {
     dragStartX.current = null;
+    setTransitionEnabled(true);
+    setDragX(0);
+  }
+
+  function handleTrackClick(event: MouseEvent) {
+    if (didDrag.current) {
+      event.stopPropagation();
+      didDrag.current = false;
+    }
+  }
+
+  function renderSlide(slidePhoto: Photo | undefined, key: string) {
+    if (!slidePhoto) {
+      return (
+        <div
+          key={key}
+          style={{ width: viewportWidth || "100vw" }}
+          className="h-full flex-shrink-0"
+        />
+      );
+    }
+    const size = fittedSizes[slidePhoto.id];
+    return (
+      <div
+        key={key}
+        style={{ width: viewportWidth || "100vw" }}
+        className="flex h-full flex-shrink-0 items-center justify-center p-6"
+      >
+        <div
+          className="relative max-h-full max-w-full select-none"
+          onClick={stopPropagation}
+        >
+          <div
+            className="relative max-h-[90vh] max-w-[90vw]"
+            style={
+              size
+                ? { width: size.width, height: size.height }
+                : { width: "90vw", height: "90vh" }
+            }
+          >
+            <Image
+              src={slidePhoto.src}
+              alt={slidePhoto.alt}
+              fill
+              sizes="90vw"
+              priority
+              className="object-contain"
+              draggable={false}
+              onLoad={(event) => handleImageLoad(slidePhoto.id, event)}
+            />
+          </div>
+          <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-4 p-4">
+            <p className="text-white/60 text-xs mt-0.5 text-left">
+              {slidePhoto.placeLabel}, {slidePhoto.countryLabel}
+            </p>
+            <p className="text-white/60 text-xs mt-0.5 text-center">
+              {slidePhoto.camera}
+            </p>
+            <p className="text-white/60 text-xs mt-0.5 text-right">
+              {formatDate(slidePhoto.dateTaken)}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6"
+      className="fixed inset-0 z-50 overflow-hidden bg-black/80"
     >
-      {[prevPhoto, nextPhoto].map(
-        (preloadPhoto) =>
-          preloadPhoto && (
-            <div
-              key={preloadPhoto.id}
-              className="hidden"
-              aria-hidden="true"
-            >
-              <div className="relative h-[90vh] w-[90vw]">
-                <Image
-                  src={preloadPhoto.src}
-                  alt=""
-                  fill
-                  sizes="90vw"
-                  priority
-                  className="object-contain"
-                  onLoad={(event) => handleImageLoad(preloadPhoto.id, event)}
-                />
-              </div>
-            </div>
-          )
-      )}
+      <div
+        className="flex h-full touch-pan-y"
+        style={{
+          transform: `translateX(${-viewportWidth + dragX}px)`,
+          transition: transitionEnabled
+            ? `transform ${SWIPE_TRANSITION_MS}ms ease-out`
+            : "none",
+        }}
+        onClick={handleTrackClick}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerCancel}
+      >
+        {renderSlide(prevPhoto, "prev")}
+        {renderSlide(photo, "current")}
+        {renderSlide(nextPhoto, "next")}
+      </div>
       <button
         onClick={(event) => {
           event.stopPropagation();
-          onPrev();
+          if (prevPhoto) animateSwipeAway("prev");
         }}
         aria-label="Previous photo"
-        className="absolute left-2 top-1/2 -translate-y-1/2 px-3 py-6 text-4xl text-white/50 transition-colors hover:text-white/90 cursor-pointer"
+        className="hidden md:block absolute left-2 top-1/2 -translate-y-1/2 px-3 py-6 text-4xl text-white/50 transition-colors hover:text-white/90 cursor-pointer"
       >
         ‹
       </button>
       <button
         onClick={(event) => {
           event.stopPropagation();
-          onNext();
+          if (nextPhoto) animateSwipeAway("next");
         }}
         aria-label="Next photo"
-        className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-6 text-4xl text-white/50 transition-colors hover:text-white/90 cursor-pointer"
+        className="hidden md:block absolute right-2 top-1/2 -translate-y-1/2 px-3 py-6 text-4xl text-white/50 transition-colors hover:text-white/90 cursor-pointer"
       >
         ›
       </button>
-      <div
-        className="relative max-h-full max-w-full touch-pan-y select-none"
-        onClick={stopPropagation}
-        onPointerDown={handlePointerDown}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerCancel}
-      >
-        <div
-          className="relative max-h-[90vh] max-w-[90vw]"
-          style={
-            renderSize
-              ? { width: renderSize.width, height: renderSize.height }
-              : { width: "90vw", height: "90vh" }
-          }
-        >
-          <Image
-            src={photo.src}
-            alt={photo.alt}
-            fill
-            sizes="90vw"
-            className="object-contain"
-            draggable={false}
-            onLoad={(event) => handleImageLoad(photo.id, event)}
-          />
-        </div>
-        <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-4 p-4">
-          <p className="text-white/60 text-xs mt-0.5 text-left">
-            {photo.placeLabel}, {photo.countryLabel}
-          </p>
-          <p className="text-white/60 text-xs mt-0.5 text-center">
-            {photo.camera}
-          </p>
-          <p className="text-white/60 text-xs mt-0.5 text-right">
-            {formatDate(photo.dateTaken)}
-          </p>
-        </div>
-      </div>
     </div>
   );
 }
