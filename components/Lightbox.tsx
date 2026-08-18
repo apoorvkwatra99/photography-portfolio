@@ -46,6 +46,7 @@ export default function Lightbox({
 }) {
   const dragStartX = useRef<number | null>(null);
   const didDrag = useRef(false);
+  const swipeTimeoutRef = useRef<number | null>(null);
   const naturalSizes = useRef<Map<string, Size>>(new Map());
   const [fittedSizes, setFittedSizes] = useState<Record<string, Size>>({});
   const [viewportWidth, setViewportWidth] = useState(() =>
@@ -99,10 +100,20 @@ export default function Lightbox({
     event.stopPropagation();
   }
 
+  useEffect(() => {
+    return () => {
+      if (swipeTimeoutRef.current !== null) {
+        clearTimeout(swipeTimeoutRef.current);
+      }
+    };
+  }, []);
+
   function animateSwipeAway(direction: "prev" | "next") {
+    if (swipeTimeoutRef.current !== null) return;
     setTransitionEnabled(true);
     setDragX(direction === "prev" ? viewportWidth : -viewportWidth);
-    window.setTimeout(() => {
+    swipeTimeoutRef.current = window.setTimeout(() => {
+      swipeTimeoutRef.current = null;
       setTransitionEnabled(false);
       setDragX(0);
       if (direction === "prev") {
@@ -114,6 +125,9 @@ export default function Lightbox({
   }
 
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
+    // A swipe is still settling (photo hasn't swapped yet) — ignore new
+    // gestures rather than risk showing a stale/repeated image mid-swap.
+    if (swipeTimeoutRef.current !== null) return;
     dragStartX.current = event.clientX;
     didDrag.current = false;
     setTransitionEnabled(false);
@@ -154,11 +168,12 @@ export default function Lightbox({
     }
   }
 
-  function renderSlide(slidePhoto: Photo | undefined, key: string) {
+  function renderSlide(slidePhoto: Photo | undefined, fallbackKey: string) {
+    const slideKey = slidePhoto?.id ?? fallbackKey;
     if (!slidePhoto) {
       return (
         <div
-          key={key}
+          key={slideKey}
           style={{ width: viewportWidth || "100vw" }}
           className="h-full flex-shrink-0"
         />
@@ -167,7 +182,7 @@ export default function Lightbox({
     const size = fittedSizes[slidePhoto.id];
     return (
       <div
-        key={key}
+        key={slideKey}
         style={{ width: viewportWidth || "100vw" }}
         className="flex h-full flex-shrink-0 items-center justify-center p-6"
       >
