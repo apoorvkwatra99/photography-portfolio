@@ -10,7 +10,7 @@ import Lightbox from "@/components/Lightbox";
 export default function Gallery({ photos }: { photos: Photo[] }) {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [sortOrder, setSortOrder] = useState<SortOrder>("recommended");
-  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const countries = useMemo(() => {
     const seen = new Map<string, string>();
@@ -46,6 +46,20 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
     );
   }
 
+  function showPrevPhoto() {
+    setSelectedIndex((current) =>
+      current === null
+        ? current
+        : (current - 1 + sortedPhotos.length) % sortedPhotos.length
+    );
+  }
+
+  function showNextPhoto() {
+    setSelectedIndex((current) =>
+      current === null ? current : (current + 1) % sortedPhotos.length
+    );
+  }
+
   return (
     <>
       <div className="flex flex-wrap gap-4 px-6 pt-6 pb-6">
@@ -58,15 +72,23 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
       </div>
       <div
         className={`transition-opacity duration-300 ${
-          selectedPhoto ? "opacity-40" : "opacity-100"
+          selectedIndex !== null ? "opacity-40" : "opacity-100"
         }`}
       >
-        <PhotoGrid photos={sortedPhotos} onSelectPhoto={setSelectedPhoto} />
+        <PhotoGrid photos={sortedPhotos} onSelectPhoto={setSelectedIndex} />
       </div>
-      {selectedPhoto && (
+      {selectedIndex !== null && (
         <Lightbox
-          photo={selectedPhoto}
-          onClose={() => setSelectedPhoto(null)}
+          photo={sortedPhotos[selectedIndex]}
+          prevPhoto={
+            sortedPhotos[
+              (selectedIndex - 1 + sortedPhotos.length) % sortedPhotos.length
+            ]
+          }
+          nextPhoto={sortedPhotos[(selectedIndex + 1) % sortedPhotos.length]}
+          onClose={() => setSelectedIndex(null)}
+          onPrev={showPrevPhoto}
+          onNext={showNextPhoto}
         />
       )}
     </>

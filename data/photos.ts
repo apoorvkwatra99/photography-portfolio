@@ -10,6 +10,7 @@ export const photos: Photo[] = [
     country: "vietnam",
     countryLabel: "Vietnam",
     dateTaken: "2026-03-27",
+    camera: "Ricoh GR III",
   },
   {
     id: "nepal-three-passes-trek-006",
@@ -20,6 +21,7 @@ export const photos: Photo[] = [
     country: "nepal",
     countryLabel: "Nepal",
     dateTaken: "2026-04-19",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-cherrapunji-001",
@@ -30,6 +32,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-09-24",
+    camera: "Ricoh GR III",
   },
   {
     id: "england-seven-sisters-trail-001",
@@ -40,6 +43,7 @@ export const photos: Photo[] = [
     country: "england",
     countryLabel: "England",
     dateTaken: "2026-05-30",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-varanasi-001",
@@ -50,6 +54,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-09-17",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-hampi-001",
@@ -60,6 +65,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-11-29",
+    camera: "Ricoh GR III",
   },
   {
     id: "laos-nong-khiaw-001",
@@ -70,6 +76,7 @@ export const photos: Photo[] = [
     country: "laos",
     countryLabel: "Laos",
     dateTaken: "2026-02-08",
+    camera: "Ricoh GR III",
   },
   {
     id: "nepal-three-passes-trek-005",
@@ -80,6 +87,7 @@ export const photos: Photo[] = [
     country: "nepal",
     countryLabel: "Nepal",
     dateTaken: "2026-04-17",
+    camera: "Ricoh GR III",
   },
   {
     id: "japan-kawaguchiko-001",
@@ -90,6 +98,7 @@ export const photos: Photo[] = [
     country: "japan",
     countryLabel: "Japan",
     dateTaken: "2026-03-10",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-jaipur-001",
@@ -100,6 +109,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-10-13",
+    camera: "Ricoh GR III",
   },
   {
     id: "vietnam-ha-giang-loop-001",
@@ -110,6 +120,7 @@ export const photos: Photo[] = [
     country: "vietnam",
     countryLabel: "Vietnam",
     dateTaken: "2026-03-25",
+    camera: "Ricoh GR III",
   },
   {
     id: "laos-luang-prabang-001",
@@ -120,6 +131,7 @@ export const photos: Photo[] = [
     country: "laos",
     countryLabel: "Laos",
     dateTaken: "2026-02-06",
+    camera: "Ricoh GR III",
   },
   {
     id: "thailand-bangkok-002",
@@ -130,6 +142,7 @@ export const photos: Photo[] = [
     country: "thailand",
     countryLabel: "Thailand",
     dateTaken: "2026-01-17",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-cherrapunji-002",
@@ -140,6 +153,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-09-24",
+    camera: "iPhone 16",
   },
   {
     id: "laos-nong-khiaw-002",
@@ -150,6 +164,7 @@ export const photos: Photo[] = [
     country: "laos",
     countryLabel: "Laos",
     dateTaken: "2026-02-08",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-jaisalmer-002",
@@ -160,6 +175,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-10-27",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-kochi-001",
@@ -170,6 +186,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-11-08",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-sundarbans-national-park-001",
@@ -180,6 +197,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-09-27",
+    camera: "Ricoh GR III",
   },
   {
     id: "thailand-ko-phi-phi-001",
@@ -190,6 +208,7 @@ export const photos: Photo[] = [
     country: "thailand",
     countryLabel: "Thailand",
     dateTaken: "2026-01-20",
+    camera: "Ricoh GR III",
   },
   {
     id: "cambodia-siem-reap-002",
@@ -200,6 +219,7 @@ export const photos: Photo[] = [
     country: "cambodia",
     countryLabel: "Cambodia",
     dateTaken: "2026-02-15",
+    camera: "Ricoh GR III",
   },
   {
     id: "japan-hiroshmia-001",
@@ -210,6 +230,7 @@ export const photos: Photo[] = [
     country: "japan",
     countryLabel: "Japan",
     dateTaken: "2026-03-16",
+    camera: "Ricoh GR III",
   },
   {
     id: "japan-magome-to-tsumago-trail-001",
@@ -220,6 +241,7 @@ export const photos: Photo[] = [
     country: "japan",
     countryLabel: "Japan",
     dateTaken: "2026-03-13",
+    camera: "Ricoh GR III",
   },
   {
     id: "vietnam-ninh-binh-002",
@@ -230,6 +252,7 @@ export const photos: Photo[] = [
     country: "vietnam",
     countryLabel: "Vietnam",
     dateTaken: "2026-03-04",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-mysore-002",
@@ -240,6 +263,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-12-10",
+    camera: "Ricoh GR III",
   },
   {
     id: "vietnam-ha-giang-loop-002",
@@ -250,6 +274,7 @@ export const photos: Photo[] = [
     country: "vietnam",
     countryLabel: "Vietnam",
     dateTaken: "2026-03-25",
+    camera: "Ricoh GR III",
   },
   {
     id: "england-london-001",
@@ -260,6 +285,7 @@ export const photos: Photo[] = [
     country: "england",
     countryLabel: "England",
     dateTaken: "2026-07-02",
+    camera: "Ricoh GR III",
   },
   {
     id: "nepal-three-passes-trek-009",
@@ -270,6 +296,7 @@ export const photos: Photo[] = [
     country: "nepal",
     countryLabel: "Nepal",
     dateTaken: "2026-04-19",
+    camera: "Ricoh GR III",
   },
   {
     id: "myanmar-myanmar-thailand-border-001",
@@ -280,6 +307,7 @@ export const photos: Photo[] = [
     country: "myanmar",
     countryLabel: "Myanmar",
     dateTaken: "2026-01-30",
+    camera: "Ricoh GR III",
   },
   {
     id: "thailand-chiang-mai-001",
@@ -290,6 +318,7 @@ export const photos: Photo[] = [
     country: "thailand",
     countryLabel: "Thailand",
     dateTaken: "2026-01-24",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-hampi-003",
@@ -300,6 +329,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-11-30",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-munnar-001",
@@ -310,6 +340,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-11-12",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-ranthambore-national-park-001",
@@ -320,6 +351,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-10-14",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-alleppey-001",
@@ -330,6 +362,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-11-15",
+    camera: "Ricoh GR III",
   },
   {
     id: "nepal-pokhara-001",
@@ -340,6 +373,7 @@ export const photos: Photo[] = [
     country: "nepal",
     countryLabel: "Nepal",
     dateTaken: "2026-04-24",
+    camera: "Ricoh GR III",
   },
   {
     id: "nepal-three-passes-trek-002",
@@ -350,6 +384,7 @@ export const photos: Photo[] = [
     country: "nepal",
     countryLabel: "Nepal",
     dateTaken: "2026-04-13",
+    camera: "Ricoh GR III",
   },
   {
     id: "vietnam-ninh-binh-001",
@@ -360,6 +395,7 @@ export const photos: Photo[] = [
     country: "vietnam",
     countryLabel: "Vietnam",
     dateTaken: "2026-03-03",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-hampi-002",
@@ -370,6 +406,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-11-29",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-amritsar-001",
@@ -380,6 +417,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-10-01",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-sundarbans-national-park-002",
@@ -390,6 +428,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-09-27",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-vengurla-001",
@@ -400,6 +439,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-09-09",
+    camera: "Ricoh GR III",
   },
   {
     id: "thailand-ko-phi-phi-002",
@@ -410,6 +450,7 @@ export const photos: Photo[] = [
     country: "thailand",
     countryLabel: "Thailand",
     dateTaken: "2026-01-21",
+    camera: "Ricoh GR III",
   },
   {
     id: "nepal-three-passes-trek-007",
@@ -420,6 +461,7 @@ export const photos: Photo[] = [
     country: "nepal",
     countryLabel: "Nepal",
     dateTaken: "2026-04-19",
+    camera: "Ricoh GR III",
   },
   {
     id: "japan-kyoto-001",
@@ -430,6 +472,7 @@ export const photos: Photo[] = [
     country: "japan",
     countryLabel: "Japan",
     dateTaken: "2026-03-20",
+    camera: "Ricoh GR III",
   },
   {
     id: "thailand-ko-phi-phi-003",
@@ -440,6 +483,7 @@ export const photos: Photo[] = [
     country: "thailand",
     countryLabel: "Thailand",
     dateTaken: "2026-01-21",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-kolkata-001",
@@ -450,6 +494,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-09-29",
+    camera: "Ricoh GR III",
   },
   {
     id: "nepal-three-passes-trek-001",
@@ -460,6 +505,7 @@ export const photos: Photo[] = [
     country: "nepal",
     countryLabel: "Nepal",
     dateTaken: "2026-04-10",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-jaisalmer-001",
@@ -470,6 +516,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-10-27",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-mysore-001",
@@ -480,6 +527,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-12-09",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-agra-001",
@@ -490,6 +538,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-10-11",
+    camera: "Ricoh GR III",
   },
   {
     id: "nepal-three-passes-trek-008",
@@ -500,6 +549,7 @@ export const photos: Photo[] = [
     country: "nepal",
     countryLabel: "Nepal",
     dateTaken: "2026-04-19",
+    camera: "Ricoh GR III",
   },
   {
     id: "japan-magome-to-tsumago-trail-002",
@@ -510,6 +560,7 @@ export const photos: Photo[] = [
     country: "japan",
     countryLabel: "Japan",
     dateTaken: "2026-03-13",
+    camera: "Ricoh GR III",
   },
   {
     id: "thailand-doi-inthanon-national-park-001",
@@ -520,6 +571,7 @@ export const photos: Photo[] = [
     country: "thailand",
     countryLabel: "Thailand",
     dateTaken: "2026-01-26",
+    camera: "Ricoh GR III",
   },
   {
     id: "vietnam-hoi-an-001",
@@ -530,6 +582,7 @@ export const photos: Photo[] = [
     country: "vietnam",
     countryLabel: "Vietnam",
     dateTaken: "2026-02-25",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-udaipur-001",
@@ -540,6 +593,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-10-17",
+    camera: "Ricoh GR III",
   },
   {
     id: "laos-nong-khiaw-003",
@@ -550,6 +604,7 @@ export const photos: Photo[] = [
     country: "laos",
     countryLabel: "Laos",
     dateTaken: "2026-02-08",
+    camera: "Ricoh GR III",
   },
   {
     id: "thailand-bangkok-001",
@@ -560,6 +615,7 @@ export const photos: Photo[] = [
     country: "thailand",
     countryLabel: "Thailand",
     dateTaken: "2026-01-17",
+    camera: "Ricoh GR III",
   },
   {
     id: "cambodia-siem-reap-001",
@@ -570,6 +626,7 @@ export const photos: Photo[] = [
     country: "cambodia",
     countryLabel: "Cambodia",
     dateTaken: "2026-02-15",
+    camera: "Ricoh GR III",
   },
   {
     id: "japan-tokyo-001",
@@ -580,6 +637,7 @@ export const photos: Photo[] = [
     country: "japan",
     countryLabel: "Japan",
     dateTaken: "2026-03-07",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-thanjavur-001",
@@ -590,6 +648,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-11-21",
+    camera: "Ricoh GR III",
   },
   {
     id: "nepal-three-passes-trek-003",
@@ -600,6 +659,7 @@ export const photos: Photo[] = [
     country: "nepal",
     countryLabel: "Nepal",
     dateTaken: "2026-04-14",
+    camera: "Ricoh GR III",
   },
   {
     id: "india-kolkata-002",
@@ -610,6 +670,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-09-30",
+    camera: "Ricoh GR III",
   },
   {
     id: "nepal-three-passes-trek-004",
@@ -620,6 +681,7 @@ export const photos: Photo[] = [
     country: "nepal",
     countryLabel: "Nepal",
     dateTaken: "2026-04-14",
+    camera: "Ricoh GR III",
   },
   {
     id: "england-london-002",
@@ -630,6 +692,7 @@ export const photos: Photo[] = [
     country: "england",
     countryLabel: "England",
     dateTaken: "2026-07-04",
+    camera: "Ricoh GR III",
   },
   {
     id: "japan-hiroshmia-002",
@@ -640,5 +703,6 @@ export const photos: Photo[] = [
     country: "japan",
     countryLabel: "Japan",
     dateTaken: "2026-03-17",
+    camera: "Ricoh GR III",
   },
 ];

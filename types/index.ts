@@ -5,6 +5,7 @@ export type Photo = {
   place: string;
   placeLabel: string;
   dateTaken: string;
+  camera: string;
   caption?: string;
   embedding?: number[];
   country: string;
