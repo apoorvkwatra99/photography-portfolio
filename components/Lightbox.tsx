@@ -16,12 +16,54 @@ const SWIPE_THRESHOLD = 50;
 const DRAG_THRESHOLD = 5;
 const SWIPE_TRANSITION_MS = 220;
 const VIEWPORT_FRACTION = 0.9;
+const FULLSCREEN_VIEWPORT_FRACTION = 0.98;
 
 type Size = { width: number; height: number };
 
-function fitWithinViewport(natural: Size): Size {
-  const maxWidth = window.innerWidth * VIEWPORT_FRACTION;
-  const maxHeight = window.innerHeight * VIEWPORT_FRACTION;
+// Safari (pre-16.4) only exposes the Fullscreen API under a webkit prefix,
+// and iOS Safari doesn't support it at all for non-<video> elements.
+type FullscreenDocument = Document & {
+  webkitFullscreenEnabled?: boolean;
+  webkitFullscreenElement?: Element | null;
+  webkitExitFullscreen?: () => Promise<void>;
+};
+
+type FullscreenElement = HTMLElement & {
+  webkitRequestFullscreen?: () => Promise<void>;
+};
+
+function isFullscreenSupported(): boolean {
+  if (typeof document === "undefined") return false;
+  const doc = document as FullscreenDocument;
+  return Boolean(doc.fullscreenEnabled || doc.webkitFullscreenEnabled);
+}
+
+function getFullscreenElement(): Element | null {
+  const doc = document as FullscreenDocument;
+  return doc.fullscreenElement ?? doc.webkitFullscreenElement ?? null;
+}
+
+async function requestFullscreen(el: HTMLElement) {
+  const target = el as FullscreenElement;
+  if (target.requestFullscreen) {
+    await target.requestFullscreen();
+  } else if (target.webkitRequestFullscreen) {
+    await target.webkitRequestFullscreen();
+  }
+}
+
+async function exitFullscreen() {
+  const doc = document as FullscreenDocument;
+  if (doc.exitFullscreen) {
+    await doc.exitFullscreen();
+  } else if (doc.webkitExitFullscreen) {
+    await doc.webkitExitFullscreen();
+  }
+}
+
+function fitWithinViewport(natural: Size, fraction: number): Size {
+  const maxWidth = window.innerWidth * fraction;
+  const maxHeight = window.innerHeight * fraction;
   const scale = Math.min(
     maxWidth / natural.width,
     maxHeight / natural.height
@@ -48,22 +90,55 @@ export default function Lightbox({
   const didDrag = useRef(false);
   const swipeTimeoutRef = useRef<number | null>(null);
   const naturalSizes = useRef<Map<string, Size>>(new Map());
+  const containerRef = useRef<HTMLDivElement>(null);
   const [fittedSizes, setFittedSizes] = useState<Record<string, Size>>({});
   const [viewportWidth, setViewportWidth] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth : 0
   );
   const [dragX, setDragX] = useState(0);
   const [transitionEnabled, setTransitionEnabled] = useState(false);
+  const [fullscreenSupported] = useState(isFullscreenSupported);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    if (!fullscreenSupported) return;
+    function handleFullscreenChange() {
+      setIsFullscreen(getFullscreenElement() !== null);
+    }
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener(
+        "webkitfullscreenchange",
+        handleFullscreenChange
+      );
+      // Leave the browser's native fullscreen when the lightbox unmounts,
+      // e.g. if the user closes it via Esc while already fullscreen.
+      if (getFullscreenElement()) exitFullscreen();
+    };
+  }, [fullscreenSupported]);
+
+  function toggleFullscreen() {
+    if (isFullscreen) {
+      exitFullscreen();
+    } else if (containerRef.current) {
+      requestFullscreen(containerRef.current);
+    }
+  }
 
   function recomputeFittedSizes() {
     const ids = [prevPhoto?.id, photo.id, nextPhoto?.id].filter(
       (id): id is string => Boolean(id)
     );
+    const fraction = isFullscreen
+      ? FULLSCREEN_VIEWPORT_FRACTION
+      : VIEWPORT_FRACTION;
     setFittedSizes((prev) => {
       const next = { ...prev };
       for (const id of ids) {
         const natural = naturalSizes.current.get(id);
-        if (natural) next[id] = fitWithinViewport(natural);
+        if (natural) next[id] = fitWithinViewport(natural, fraction);
       }
       return next;
     });
@@ -72,7 +147,7 @@ export default function Lightbox({
   useEffect(() => {
     recomputeFittedSizes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [photo.id, prevPhoto?.id, nextPhoto?.id]);
+  }, [photo.id, prevPhoto?.id, nextPhoto?.id, isFullscreen]);
 
   useEffect(() => {
     function handleResize() {
@@ -82,7 +157,7 @@ export default function Lightbox({
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [photo.id, prevPhoto?.id, nextPhoto?.id]);
+  }, [photo.id, prevPhoto?.id, nextPhoto?.id, isFullscreen]);
 
   function handleImageLoad(
     photoId: string,
@@ -123,6 +198,19 @@ export default function Lightbox({
       }
     }, SWIPE_TRANSITION_MS);
   }
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "ArrowLeft" && prevPhoto) {
+        animateSwipeAway("prev");
+      } else if (event.key === "ArrowRight" && nextPhoto) {
+        animateSwipeAway("next");
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prevPhoto, nextPhoto, viewportWidth]);
 
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
     // A swipe is still settling (photo hasn't swapped yet) — ignore new
@@ -180,46 +268,53 @@ export default function Lightbox({
       );
     }
     const size = fittedSizes[slidePhoto.id];
+    const viewportPercent = isFullscreen ? 98 : 90;
     return (
       <div
         key={slideKey}
         style={{ width: viewportWidth || "100vw" }}
-        className="flex h-full flex-shrink-0 items-center justify-center p-6"
+        className={`flex h-full flex-shrink-0 items-center justify-center ${
+          isFullscreen ? "p-1" : "p-6"
+        }`}
       >
         <div
           className="relative max-h-full max-w-full select-none"
           onClick={stopPropagation}
         >
           <div
-            className="relative max-h-[90vh] max-w-[90vw]"
-            style={
-              size
+            className="relative"
+            style={{
+              maxHeight: `${viewportPercent}vh`,
+              maxWidth: `${viewportPercent}vw`,
+              ...(size
                 ? { width: size.width, height: size.height }
-                : { width: "90vw", height: "90vh" }
-            }
+                : { width: `${viewportPercent}vw`, height: `${viewportPercent}vh` }),
+            }}
           >
             <Image
               src={slidePhoto.src}
               alt={slidePhoto.alt}
               fill
-              sizes="90vw"
+              sizes={`${viewportPercent}vw`}
               priority
               className="object-contain"
               draggable={false}
               onLoad={(event) => handleImageLoad(slidePhoto.id, event)}
             />
           </div>
-          <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-4 p-4">
-            <p className="text-white/60 text-xs mt-0.5 text-left">
-              {slidePhoto.placeLabel}, {slidePhoto.countryLabel}
-            </p>
-            <p className="text-white/60 text-xs mt-0.5 text-center">
-              {slidePhoto.camera}
-            </p>
-            <p className="text-white/60 text-xs mt-0.5 text-right">
-              {formatDate(slidePhoto.dateTaken)}
-            </p>
-          </div>
+          {!isFullscreen && (
+            <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-4 p-4">
+              <p className="text-white/60 text-xs mt-0.5 text-left">
+                {slidePhoto.placeLabel}, {slidePhoto.countryLabel}
+              </p>
+              <p className="text-white/60 text-xs mt-0.5 text-center">
+                {slidePhoto.camera}
+              </p>
+              <p className="text-white/60 text-xs mt-0.5 text-right">
+                {formatDate(slidePhoto.dateTaken)}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -227,11 +322,12 @@ export default function Lightbox({
 
   return (
     <div
+      ref={containerRef}
       onClick={onClose}
       className="fixed inset-0 z-50 overflow-hidden bg-black/80"
     >
       <div
-        className="flex h-full touch-pan-y"
+        className="flex h-full [touch-action:pan-y_pinch-zoom]"
         style={{
           transform: `translateX(${-viewportWidth + dragX}px)`,
           transition: transitionEnabled
@@ -248,6 +344,50 @@ export default function Lightbox({
         {renderSlide(photo, "current")}
         {renderSlide(nextPhoto, "next")}
       </div>
+      {fullscreenSupported && (
+        <button
+          onClick={(event) => {
+            event.stopPropagation();
+            toggleFullscreen();
+          }}
+          aria-label={isFullscreen ? "Exit full screen" : "Full screen"}
+          className="absolute right-4 top-4 z-10 p-2 text-white/50 transition-colors hover:text-white/90 cursor-pointer"
+        >
+          {isFullscreen ? (
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M9 3v4a2 2 0 0 1-2 2H3" />
+              <path d="M21 9h-4a2 2 0 0 1-2-2V3" />
+              <path d="M3 15h4a2 2 0 0 1 2 2v4" />
+              <path d="M15 21v-4a2 2 0 0 1 2-2h4" />
+            </svg>
+          ) : (
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M3 9V5a2 2 0 0 1 2-2h4" />
+              <path d="M15 3h4a2 2 0 0 1 2 2v4" />
+              <path d="M21 15v4a2 2 0 0 1-2 2h-4" />
+              <path d="M9 21H5a2 2 0 0 1-2-2v-4" />
+            </svg>
+          )}
+        </button>
+      )}
       <button
         onClick={(event) => {
           event.stopPropagation();

@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Photography",
-  description: "Nature and travel photography",
+  title: "Apoorv Kwatra",
+  description: "Photography portfolio",
 };
 
 export default function RootLayout({
