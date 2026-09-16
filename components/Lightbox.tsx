@@ -17,6 +17,9 @@ const DRAG_THRESHOLD = 5;
 const SWIPE_TRANSITION_MS = 220;
 const VIEWPORT_FRACTION = 0.9;
 const FULLSCREEN_VIEWPORT_FRACTION = 0.98;
+// Matches the `md` breakpoint already used elsewhere in this component
+// (e.g. the prev/next arrows are desktop/tablet-only below this width).
+const MOBILE_BREAKPOINT = 768;
 
 type Size = { width: number; height: number };
 
@@ -188,6 +191,18 @@ export default function Lightbox({
     event.stopPropagation();
   }
 
+  function handleCurrentPhotoClick(event: MouseEvent) {
+    event.stopPropagation();
+    // A swipe just ended on this same click — don't also toggle fullscreen.
+    if (didDrag.current) {
+      didDrag.current = false;
+      return;
+    }
+    if (viewportWidth < MOBILE_BREAKPOINT) {
+      toggleFullscreen();
+    }
+  }
+
   useEffect(() => {
     return () => {
       if (swipeTimeoutRef.current !== null) {
@@ -325,7 +340,7 @@ export default function Lightbox({
       >
         <div
           className="relative max-h-full max-w-full select-none"
-          onClick={stopPropagation}
+          onClick={isNeighbor ? stopPropagation : handleCurrentPhotoClick}
         >
           <div
             className="relative"
