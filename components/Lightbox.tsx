@@ -125,6 +125,14 @@ export default function Lightbox({
   }, [fullscreenSupported]);
 
   function toggleFullscreen() {
+    if (!fullscreenSupported) {
+      // No Fullscreen API here (e.g. iPhone Safari, which only supports
+      // it for <video>) — simulate the same distraction-free layout
+      // without hiding the browser chrome, since that part isn't
+      // available on this device.
+      setIsFullscreen((prev) => !prev);
+      return;
+    }
     if (isFullscreen) {
       exitFullscreen();
     } else if (containerRef.current) {
@@ -382,50 +390,48 @@ export default function Lightbox({
         {renderSlide(photo, "current", false)}
         {renderSlide(nextPhoto, "next", true)}
       </div>
-      {fullscreenSupported && (
-        <button
-          onClick={(event) => {
-            event.stopPropagation();
-            toggleFullscreen();
-          }}
-          aria-label={isFullscreen ? "Exit full screen" : "Full screen"}
-          className="absolute right-4 top-4 z-10 p-2 text-white/50 transition-colors hover:text-white/90 cursor-pointer"
-        >
-          {isFullscreen ? (
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M9 3v4a2 2 0 0 1-2 2H3" />
-              <path d="M21 9h-4a2 2 0 0 1-2-2V3" />
-              <path d="M3 15h4a2 2 0 0 1 2 2v4" />
-              <path d="M15 21v-4a2 2 0 0 1 2-2h4" />
-            </svg>
-          ) : (
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M3 9V5a2 2 0 0 1 2-2h4" />
-              <path d="M15 3h4a2 2 0 0 1 2 2v4" />
-              <path d="M21 15v4a2 2 0 0 1-2 2h-4" />
-              <path d="M9 21H5a2 2 0 0 1-2-2v-4" />
-            </svg>
-          )}
-        </button>
-      )}
+      <button
+        onClick={(event) => {
+          event.stopPropagation();
+          toggleFullscreen();
+        }}
+        aria-label={isFullscreen ? "Exit full screen" : "Full screen"}
+        className="absolute right-4 top-4 z-10 p-2 text-white/50 transition-colors hover:text-white/90 cursor-pointer"
+      >
+        {isFullscreen ? (
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M9 3v4a2 2 0 0 1-2 2H3" />
+            <path d="M21 9h-4a2 2 0 0 1-2-2V3" />
+            <path d="M3 15h4a2 2 0 0 1 2 2v4" />
+            <path d="M15 21v-4a2 2 0 0 1 2-2h4" />
+          </svg>
+        ) : (
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M3 9V5a2 2 0 0 1 2-2h4" />
+            <path d="M15 3h4a2 2 0 0 1 2 2v4" />
+            <path d="M21 15v4a2 2 0 0 1-2 2h-4" />
+            <path d="M9 21H5a2 2 0 0 1-2-2v-4" />
+          </svg>
+        )}
+      </button>
       <button
         onClick={(event) => {
           event.stopPropagation();
