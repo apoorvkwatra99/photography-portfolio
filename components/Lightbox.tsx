@@ -216,22 +216,44 @@ export default function Lightbox({
     // A swipe is still settling (photo hasn't swapped yet) — ignore new
     // gestures rather than risk showing a stale/repeated image mid-swap.
     if (swipeTimeoutRef.current !== null) return;
+    if (!event.isPrimary) {
+      // A second finger touched down mid-gesture — this is a pinch
+      // starting, not a swipe. Abandon the drag so native pinch-zoom
+      // (enabled via touch-action) can take over instead of the two
+      // fighting for control of the gesture, which is what made
+      // swiping unreliable on iOS once pinch-zoom was allowed.
+      dragStartX.current = null;
+      didDrag.current = false;
+      setTransitionEnabled(true);
+      setDragX(0);
+      return;
+    }
     dragStartX.current = event.clientX;
     didDrag.current = false;
     setTransitionEnabled(false);
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // Pointer capture isn't critical — the drag still works without it.
+    }
   }
 
   function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
-    if (dragStartX.current === null) return;
+    if (!event.isPrimary || dragStartX.current === null) return;
     const delta = event.clientX - dragStartX.current;
     if (Math.abs(delta) > DRAG_THRESHOLD) {
       didDrag.current = true;
+      // Once we've committed to a horizontal drag, prevent iOS from also
+      // treating the gesture as a scroll/pan attempt mid-swipe — that
+      // ambiguity is what made swipes on iPhone feel unresponsive and
+      // occasionally deliver a corrupted final position.
+      event.preventDefault();
     }
     setDragX(delta);
   }
 
-  function handlePointerUp() {
-    if (dragStartX.current === null) return;
+  function handlePointerUp(event: PointerEvent<HTMLDivElement>) {
+    if (!event.isPrimary || dragStartX.current === null) return;
     dragStartX.current = null;
     setTransitionEnabled(true);
     if (dragX > SWIPE_THRESHOLD && prevPhoto) {
@@ -243,7 +265,8 @@ export default function Lightbox({
     }
   }
 
-  function handlePointerCancel() {
+  function handlePointerCancel(event: PointerEvent<HTMLDivElement>) {
+    if (!event.isPrimary) return;
     dragStartX.current = null;
     setTransitionEnabled(true);
     setDragX(0);
