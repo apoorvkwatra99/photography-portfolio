@@ -396,7 +396,7 @@ export default function Lightbox({
           toggleFullscreen();
         }}
         aria-label={isFullscreen ? "Exit full screen" : "Full screen"}
-        className="absolute right-4 top-4 z-10 p-2 text-white/50 transition-colors hover:text-white/90 cursor-pointer"
+        className="absolute left-4 top-4 z-10 p-2 text-white/50 transition-colors hover:text-white/90 cursor-pointer"
       >
         {isFullscreen ? (
           <svg
@@ -431,6 +431,28 @@ export default function Lightbox({
             <path d="M9 21H5a2 2 0 0 1-2-2v-4" />
           </svg>
         )}
+      </button>
+      <button
+        onClick={(event) => {
+          event.stopPropagation();
+          onClose();
+        }}
+        aria-label="Close"
+        className="absolute right-4 top-4 z-10 p-2 text-white/50 transition-colors hover:text-white/90 cursor-pointer"
+      >
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M18 6 6 18" />
+          <path d="M6 6l12 12" />
+        </svg>
       </button>
       <button
         onClick={(event) => {

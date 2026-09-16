@@ -8,10 +8,12 @@ export default function FilterBar({
   countries,
   selected,
   onToggle,
+  onSelectAll,
 }: {
   countries: Country[];
   selected: string[];
   onToggle: (country: string) => void;
+  onSelectAll: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -54,21 +56,43 @@ export default function FilterBar({
       </button>
 
       {open && (
-        <div className="absolute z-10 mt-2 w-56 max-h-72 overflow-y-auto rounded-lg border border-white/10 bg-zinc-900 py-2 shadow-lg">
-          {sortedCountries.map((country) => (
-            <label
-              key={country.value}
-              className="flex items-center gap-3 px-4 py-2 text-sm text-white/80 hover:bg-white/5 cursor-pointer"
-            >
-              <input
-                type="checkbox"
-                checked={selected.includes(country.value)}
-                onChange={() => onToggle(country.value)}
-                className="accent-white"
-              />
-              {country.label}
-            </label>
-          ))}
+        <div className="absolute z-10 mt-2 w-56 rounded-lg border border-white/10 bg-zinc-900 py-2 shadow-lg">
+          <label
+            className={`flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 cursor-pointer ${
+              selected.length === 0
+                ? "text-white font-semibold"
+                : "text-white/80"
+            }`}
+          >
+            <input
+              type="checkbox"
+              checked={selected.length === 0}
+              onChange={onSelectAll}
+              className="accent-sky-400"
+            />
+            All
+          </label>
+          <div className="my-1 border-t border-white/10" />
+          <div className="max-h-72 overflow-y-auto">
+            {sortedCountries.map((country) => (
+              <label
+                key={country.value}
+                className={`flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 cursor-pointer ${
+                  selected.includes(country.value)
+                    ? "text-white font-semibold"
+                    : "text-white/80"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={selected.includes(country.value)}
+                  onChange={() => onToggle(country.value)}
+                  className="accent-sky-400"
+                />
+                {country.label}
+              </label>
+            ))}
+          </div>
         </div>
       )}
     </div>

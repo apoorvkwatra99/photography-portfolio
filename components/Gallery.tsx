@@ -67,6 +67,7 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
           countries={countries}
           selected={selectedCountries}
           onToggle={toggleCountry}
+          onSelectAll={() => setSelectedCountries([])}
         />
         <SortDropdown selected={sortOrder} onChange={setSortOrder} />
       </div>

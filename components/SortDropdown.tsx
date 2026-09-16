@@ -59,7 +59,9 @@ export default function SortDropdown({
                 setOpen(false);
               }}
               className={`flex w-full items-center px-4 py-2 text-left text-sm hover:bg-white/5 ${
-                selected === option.value ? "text-white" : "text-white/80"
+                selected === option.value
+                  ? "text-white font-semibold"
+                  : "text-white/80"
               }`}
             >
               {option.label}
