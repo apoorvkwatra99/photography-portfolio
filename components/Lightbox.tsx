@@ -99,6 +99,11 @@ export default function Lightbox({
   const [transitionEnabled, setTransitionEnabled] = useState(false);
   const [fullscreenSupported] = useState(isFullscreenSupported);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  // Neighbor slides are only visible while a swipe is actively happening.
+  // Kept hidden (not unmounted, so they stay preloaded) the rest of the
+  // time so that pinch-zooming out on the current photo reveals empty
+  // space instead of the adjacent photos, which sit just off-screen.
+  const [isInteracting, setIsInteracting] = useState(false);
 
   useEffect(() => {
     if (!fullscreenSupported) return;
@@ -185,12 +190,14 @@ export default function Lightbox({
 
   function animateSwipeAway(direction: "prev" | "next") {
     if (swipeTimeoutRef.current !== null) return;
+    setIsInteracting(true);
     setTransitionEnabled(true);
     setDragX(direction === "prev" ? viewportWidth : -viewportWidth);
     swipeTimeoutRef.current = window.setTimeout(() => {
       swipeTimeoutRef.current = null;
       setTransitionEnabled(false);
       setDragX(0);
+      setIsInteracting(false);
       if (direction === "prev") {
         onPrev();
       } else {
@@ -226,11 +233,13 @@ export default function Lightbox({
       didDrag.current = false;
       setTransitionEnabled(true);
       setDragX(0);
+      setIsInteracting(false);
       return;
     }
     dragStartX.current = event.clientX;
     didDrag.current = false;
     setTransitionEnabled(false);
+    setIsInteracting(true);
     try {
       event.currentTarget.setPointerCapture(event.pointerId);
     } catch {
@@ -262,6 +271,7 @@ export default function Lightbox({
       animateSwipeAway("next");
     } else {
       setDragX(0);
+      setIsInteracting(false);
     }
   }
 
@@ -270,6 +280,7 @@ export default function Lightbox({
     dragStartX.current = null;
     setTransitionEnabled(true);
     setDragX(0);
+    setIsInteracting(false);
   }
 
   function handleTrackClick(event: MouseEvent) {
@@ -279,7 +290,11 @@ export default function Lightbox({
     }
   }
 
-  function renderSlide(slidePhoto: Photo | undefined, fallbackKey: string) {
+  function renderSlide(
+    slidePhoto: Photo | undefined,
+    fallbackKey: string,
+    isNeighbor: boolean
+  ) {
     const slideKey = slidePhoto?.id ?? fallbackKey;
     if (!slidePhoto) {
       return (
@@ -298,7 +313,7 @@ export default function Lightbox({
         style={{ width: viewportWidth || "100vw" }}
         className={`flex h-full flex-shrink-0 items-center justify-center ${
           isFullscreen ? "p-1" : "p-6"
-        }`}
+        } ${isNeighbor && !isInteracting ? "invisible" : ""}`}
       >
         <div
           className="relative max-h-full max-w-full select-none"
@@ -363,9 +378,9 @@ export default function Lightbox({
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerCancel}
       >
-        {renderSlide(prevPhoto, "prev")}
-        {renderSlide(photo, "current")}
-        {renderSlide(nextPhoto, "next")}
+        {renderSlide(prevPhoto, "prev", true)}
+        {renderSlide(photo, "current", false)}
+        {renderSlide(nextPhoto, "next", true)}
       </div>
       {fullscreenSupported && (
         <button
