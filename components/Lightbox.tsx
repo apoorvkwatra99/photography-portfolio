@@ -350,7 +350,7 @@ export default function Lightbox({
       className="fixed inset-0 z-50 overflow-hidden bg-black/80"
     >
       <div
-        className="flex h-full [touch-action:pan-y_pinch-zoom]"
+        className="flex h-full [touch-action:pinch-zoom]"
         style={{
           transform: `translateX(${-viewportWidth + dragX}px)`,
           transition: transitionEnabled
