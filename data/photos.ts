@@ -32,7 +32,7 @@ export const photos: Photo[] = [
     country: "india",
     countryLabel: "India",
     dateTaken: "2025-09-24",
-    camera: "Ricoh GR III",
+    camera: "Ricoh GR III *",
   },
   {
     id: "england-seven-sisters-trail-001",
@@ -263,7 +263,7 @@ export const photos: Photo[] = [
     country: "italy",
     countryLabel: "Italy",
     dateTaken: "2024-02-16",
-    camera: "iPhone SE 3",
+    camera: "iPhone SE 3 *",
   },
   {
     id: "japan-magome-to-tsumago-trail-001",
@@ -400,13 +400,13 @@ export const photos: Photo[] = [
   {
     id: "france-cannes-002",
     src: "https://res.cloudinary.com/ds1ukbkgz/image/upload/v1789415795/IMG_0989_momwah.jpg",
-    alt: "Cactuses in alley",
+    alt: "Cacti in alley",
     place: "cannes",
     placeLabel: "Cannes",
     country: "france",
     countryLabel: "France",
     dateTaken: "2025-05-03",
-    camera: "Canon EOS 5D",
+    camera: "Canon EOS 5D *",
   },
   {
     id: "portugal-sao-miguel-island-002",
@@ -1308,7 +1308,7 @@ export const photos: Photo[] = [
     country: "germany",
     countryLabel: "Germany",
     dateTaken: "2025-02-15",
-    camera: "Canon EOS 5D",
+    camera: "Canon EOS 5D *",
   },
   {
     id: "india-kolkata-002",
