@@ -318,7 +318,12 @@ export default function Lightbox({
     fallbackKey: string,
     isNeighbor: boolean
   ) {
-    const slideKey = slidePhoto?.id ?? fallbackKey;
+    // Keyed by slide role (prev/current/next), not photo id — with a
+    // small filtered set, the same photo can legitimately occupy two
+    // slide roles at once (e.g. exactly 2 photos means prev and next
+    // are both "the other one"), which would otherwise produce two
+    // siblings with the same key.
+    const slideKey = fallbackKey;
     if (!slidePhoto) {
       return (
         <div

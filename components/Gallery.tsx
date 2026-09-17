@@ -62,7 +62,7 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
 
   return (
     <>
-      <div className="flex flex-wrap gap-4 px-6 pt-6 pb-6">
+      <div className="sticky top-0 z-20 flex flex-wrap gap-4 bg-black px-6 pt-6 pb-6">
         <FilterBar
           countries={countries}
           selected={selectedCountries}
