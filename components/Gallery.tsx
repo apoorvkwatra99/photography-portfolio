@@ -8,7 +8,7 @@ import SortDropdown, { SortOrder } from "@/components/SortDropdown";
 import Lightbox from "@/components/Lightbox";
 
 export default function Gallery({ photos }: { photos: Photo[] }) {
-  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>("recommended");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
@@ -23,9 +23,9 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
   }, [photos]);
 
   const filteredPhotos =
-    selectedCountries.length === 0
+    selectedCountry === null
       ? photos
-      : photos.filter((photo) => selectedCountries.includes(photo.country));
+      : photos.filter((photo) => photo.country === selectedCountry);
 
   const sortedPhotos = useMemo(() => {
     if (sortOrder === "recommended") return filteredPhotos;
@@ -37,14 +37,6 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
     );
     return sorted;
   }, [filteredPhotos, sortOrder]);
-
-  function toggleCountry(country: string) {
-    setSelectedCountries((prev) =>
-      prev.includes(country)
-        ? prev.filter((c) => c !== country)
-        : [...prev, country]
-    );
-  }
 
   function showPrevPhoto() {
     setSelectedIndex((current) =>
@@ -65,9 +57,9 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
       <div className="sticky top-0 z-20 flex flex-wrap gap-4 bg-black px-6 pt-6 pb-6">
         <FilterBar
           countries={countries}
-          selected={selectedCountries}
-          onToggle={toggleCountry}
-          onSelectAll={() => setSelectedCountries([])}
+          selected={selectedCountry}
+          onSelect={setSelectedCountry}
+          onSelectAll={() => setSelectedCountry(null)}
         />
         <SortDropdown selected={sortOrder} onChange={setSortOrder} />
       </div>

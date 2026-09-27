@@ -7,12 +7,12 @@ type Country = { value: string; label: string };
 export default function FilterBar({
   countries,
   selected,
-  onToggle,
+  onSelect,
   onSelectAll,
 }: {
   countries: Country[];
-  selected: string[];
-  onToggle: (country: string) => void;
+  selected: string | null;
+  onSelect: (country: string) => void;
   onSelectAll: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -36,12 +36,10 @@ export default function FilterBar({
   );
 
   const buttonLabel =
-    selected.length === 0
+    selected === null
       ? "Country"
-      : selected.length === 1
-        ? countries.find((c) => c.value === selected[0])?.label ??
-          "Select country"
-        : `${selected.length} countries`;
+      : countries.find((c) => c.value === selected)?.label ??
+        "Select country";
 
   return (
     <div ref={containerRef} className="relative">
@@ -57,40 +55,30 @@ export default function FilterBar({
 
       {open && (
         <div className="absolute z-10 mt-2 w-56 rounded-lg border border-white/10 bg-zinc-900 py-2 shadow-lg">
-          <label
-            className={`flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 cursor-pointer ${
-              selected.length === 0
-                ? "text-white font-semibold"
+          <button
+            onClick={onSelectAll}
+            className={`flex w-full items-center px-4 py-2 text-left text-sm hover:bg-white/5 ${
+              selected === null
+                ? "bg-zinc-950 text-white font-semibold"
                 : "text-white/80"
             }`}
           >
-            <input
-              type="checkbox"
-              checked={selected.length === 0}
-              onChange={onSelectAll}
-              className="accent-sky-400"
-            />
             All
-          </label>
+          </button>
           <div className="my-1 border-t border-white/10" />
           <div className="max-h-72 overflow-y-auto">
             {sortedCountries.map((country) => (
-              <label
+              <button
                 key={country.value}
-                className={`flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 cursor-pointer ${
-                  selected.includes(country.value)
-                    ? "text-white font-semibold"
+                onClick={() => onSelect(country.value)}
+                className={`flex w-full items-center px-4 py-2 text-left text-sm hover:bg-white/5 ${
+                  selected === country.value
+                    ? "bg-zinc-950 text-white font-semibold"
                     : "text-white/80"
                 }`}
               >
-                <input
-                  type="checkbox"
-                  checked={selected.includes(country.value)}
-                  onChange={() => onToggle(country.value)}
-                  className="accent-sky-400"
-                />
                 {country.label}
-              </label>
+              </button>
             ))}
           </div>
         </div>
