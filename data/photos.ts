@@ -432,7 +432,7 @@ export const photos: Photo[] = [
   },
   {
     id: "germany-berlin-003",
-    src: "https://res.cloudinary.com/ds1ukbkgz/image/upload/v1789415182/IMG_0953_tmnuws.jpg",
+    src: "https://res.cloudinary.com/ds1ukbkgz/image/upload/v1790547284/IMG_0953_e1ko5z.jpg",
     alt: "Museum Island",
     place: "berlin",
     placeLabel: "Berlin",
