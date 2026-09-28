@@ -806,7 +806,7 @@ export const photos: Photo[] = [
   },
   {
     id: "croatia-dubrovnik-002",
-    src: "https://res.cloudinary.com/ds1ukbkgz/image/upload/v1789416702/IMG_1009_uypxfy.jpg",
+    src: "https://res.cloudinary.com/ds1ukbkgz/image/upload/v1790632785/IMG_1037_hnqsbq.jpg",
     alt: "Dubrovnik city walls",
     place: "dubrovnik",
     placeLabel: "Dubrovnik",
